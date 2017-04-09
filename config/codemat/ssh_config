@@ -1,0 +1,3 @@
+Host devenv
+  Hostname 10.10.10.10
+  User codemat

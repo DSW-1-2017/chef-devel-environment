@@ -1,0 +1,5 @@
+# Example
+#
+# default:
+#   server_name: service.name
+#   service_port: 80

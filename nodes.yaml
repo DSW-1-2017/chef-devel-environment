@@ -1,11 +1,3 @@
-letsencrypt:
-  run_list:
-    - role[letsencrypt_server]
-
-rocketchat:
-  run_list:
-    - role[rocketchat_server]
-
 devenv:
   run_list:
     - role[devenv]

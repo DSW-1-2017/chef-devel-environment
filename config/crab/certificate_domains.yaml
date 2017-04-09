@@ -1,7 +1,0 @@
-default:
-  server_name: crab.solutions
-  service_port: 80
-
-rocketchat:
-  server_name: chat.crab.solutions
-  service_port: 3000

@@ -1,5 +1,5 @@
 require 'yaml'
-environment = "crab"
+environment = "codemat"
 
 ssh_config_file = "config/#{environment}/ssh_config"
 ips_file = "config/#{environment}/ips.yaml"
