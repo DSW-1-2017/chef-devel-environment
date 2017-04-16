@@ -3,7 +3,7 @@ package 'libpq-dev'
 
 codemat_user = node['user']['name']
 
-template '/etc/postgresql/9.4/main/pg_hba.conf' do
+template '/etc/postgresql/9.6/main/pg_hba.conf' do
   source 'pg_hba.conf.erb'
   owner 'postgres'
   group 'postgres'
