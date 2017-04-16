@@ -16,7 +16,7 @@ if environment == "holodev"
          " > ../../#{ips_file}.new ;"\
          "cd ../..;"\
          "cp config/codemat/* #{config_path};"\
-         "rm #{user_config_file}")
+         "rm -rf #{user_config_file}")
 
   begin
     ips = YAML.load_file("#{ips_file}.new")
@@ -27,7 +27,9 @@ if environment == "holodev"
     current_user = ENV['USER']
     system('sed -ie "N;N;s/\(Host devenv\)/\1/;s/\(Hostname\s*\)[0-9.]*/\1' +
            ips['devenv'] + '/g;s/\(User\s*\).*/\1' + current_user + '/g" ' +
-           ssh_config_file);
+           ssh_config_file)
+
+    current_user_home = "/HOLODEV"
 
   rescue Exception => ex
     puts ex.message
@@ -38,6 +40,7 @@ if environment == "holodev"
 else
   current_user = ""
   File.open(user_config_file, 'r') { |f| current_user = f.gets.strip }
+  current_user_home = "/home/#{current_user}"
 end
 
 ENV['CHAKE_SSH_CONFIG'] = ssh_config_file
@@ -49,8 +52,41 @@ passwords ||= YAML.load_file(passwd_file)
 crt_domains ||= YAML.load_file(certificate_domains_file)
 
 $nodes.each do |node|
-  node.data['user'] = current_user
+  node.data['user'] = Hash.new
+  node.data['user']['name'] = current_user
+  node.data['user']['home'] = current_user_home
   node.data['peers'] = ips
   node.data['passwd'] = passwords
   node.data['crt_domains'] = crt_domains
 end
+
+task :preconfig do
+  command = "sudo apt-get install -y wget rsync"
+  $nodes.each do |node|
+    puts "###############################################"
+    puts "[#{node.hostname}]: EXECUTING #{command}"
+    puts "This can take long"
+    puts "###############################################"
+
+    output = IO.popen("ssh -F #{ssh_config_file} #{node.hostname} #{command}")
+    output.each_line do |line|
+      printf "%s: %s\n", node.hostname, line.strip
+    end
+
+    output.close
+    if $?
+      status = $?.exitstatus
+      if status != 0
+        raise Exception.new(['FAILED with exit status %d' % status].join(': '))
+      end
+    end
+  end
+end
+
+task :clean do
+  central_user = `echo $USER`.strip
+  sh "rake run['sudo rm -rf /var/tmp/chef.#{central_user}']"
+  sh "rm -rf tmp/*"
+end
+
+Dir.glob('tasks/*.rake').each { |f| load f }
