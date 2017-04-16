@@ -1,7 +1,7 @@
 # This recipe sets the crab Team development environment on
 # a virtual machine vagrant debian jessie 8.5
 # created by Luan Guimarães Lacerda
-current_user = 'vagrant'
+current_user = node['user']
 
 execute 'apt-get update'
 

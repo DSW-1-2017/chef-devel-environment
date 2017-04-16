@@ -1,7 +1,7 @@
 package 'postgresql'
 package 'libpq-dev'
 
-codemat_user = 'codemat'
+codemat_user = node['user']
 
 template '/etc/postgresql/9.4/main/pg_hba.conf' do
   source 'pg_hba.conf.erb'
@@ -9,7 +9,7 @@ template '/etc/postgresql/9.4/main/pg_hba.conf' do
   group 'postgres'
   mode 0644
   variables({
-    user_dev: vagrant_user,
+    user_dev: codemat_user,
     user_app: codemat_user,
   })
 end
