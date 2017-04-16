@@ -1,7 +1,8 @@
 # This recipe sets the crab Team development environment on
 # a virtual machine vagrant debian jessie 8.5
 # created by Luan Guimarães Lacerda
-current_user = node['user']
+current_user = node['user']['name']
+current_user_home = node['user']['home']
 
 execute 'apt-get update'
 
@@ -13,7 +14,7 @@ end
 
 key_server = 'hkp://keys.gnupg.net'
 key_server_port = '80'
-home_dir = "/home/#{current_user}/.gnupg"
+home_dir = "#{current_user_home}/.gnupg"
 gpg_key = '409B6B1796C275462A1703113804BB82D39DC0E3'
 
 execute 'Adding gpg key' do
@@ -26,20 +27,14 @@ old_home = ENV['HOME']
 
 ruby_block "clear_home for CHEF-3940" do
   block do
-      ENV['HOME'] = Etc.getpwnam(current_user).dir
+      ENV['HOME'] = current_user_home
   end
 end
 
 bash 'install ruby via curl' do
   code '\curl -L https://get.rvm.io | bash -s stable --ruby'
   user current_user
-  cwd home_dir
-end
-
-execute 'installing the newest version of ruby via curl' do
-  command '\curl -L https://get.rvm.io | bash -s stable --ruby'
-  user current_user
-  cwd home_dir
+  cwd current_user_home
 end
 
 execute 'update all stale gems' do
